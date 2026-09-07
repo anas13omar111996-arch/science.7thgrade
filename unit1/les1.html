@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار العلوم التفاعلي - الصف السابع | المعادن والصخور</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            max-width: 680px;
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            color: #1e293b;
+        }
+
+        .badge {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-option {
+            background-color: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #334155;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .btn-option:hover:not([disabled]) {
+            background-color: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn-option.correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d !important;
+            font-weight: bold;
+        }
+
+        .btn-option.incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+        }
+
+        .feedback-box {
+            display: none;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .feedback-box.correct {
+            display: block;
+            background-color: #f0fdf4;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+
+        .feedback-box.incorrect {
+            display: block;
+            background-color: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-next {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: none;
+        }
+
+        .btn-next:hover {
+            background-color: #1d4ed8;
+        }
+
+        .results-container {
+            text-align: center;
+            display: none;
+        }
+
+        .results-container h2 {
+            font-size: 1.8rem;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 20px 0;
+        }
+
+        .btn-restart {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-restart:hover {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-card">
+    <div id="quiz-screen">
+        <div class="header">
+            <h1>علوم الصف السابع - درس المعادن والصخور</h1>
+            <span class="badge" id="progress-badge">السؤال 1 من 10</span>
+        </div>
+
+        <div class="question-text" id="question-text">جاري تحميل السؤال...</div>
+
+        <div class="options-grid" id="options-container"></div>
+
+        <div class="feedback-box" id="feedback-box"></div>
+
+        <div class="footer">
+            <div id="score-live" style="font-size: 0.95rem; color: #64748b; font-weight: 600;">النتيجة: 0</div>
+            <button class="btn-next" id="btn-next" onclick="nextQuestion()">السؤال التالي ←</button>
+        </div>
+    </div>
+
+    <div class="results-container" id="results-screen">
+        <h2>أحسنت! أكملت الاختبار 🎉</h2>
+        <p style="color: #64748b;">إليك النتيجة النهائية الخاصة بك:</p>
+        <div class="score-display" id="final-score">0 / 10</div>
+        <p id="performance-msg" style="margin-bottom: 25px; font-weight: 600; font-size: 1.1rem;"></p>
+        <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            type: "mcq",
+            question: "أيّ العبارات التالية تُعبّر بشكل دقيق عن مفهوم \"المعدن\"؟",
+            options: [
+                "مادة سائلة ذات أصل عضوي وتركيب كيميائي متغيّر",
+                "مادة صلبة نقية تكونت طبيعياً من أصل غير عضوي ولها تركيب كيميائي محدد",
+                "خليط غير منتظم يتكون فقط من بقايا الكائنات الحية",
+                "مادة منصهرة تخرج مباشرة من فوهات البراكين"
+            ],
+            correct: 1,
+            explanation: "المعدن مادة صلبة نقية تكونت طبيعياً من أصل غير عضوي، ولها تركيب كيميائي محدد وبناء ذري داخلي منتظم."
+        },
+        {
+            type: "tf",
+            question: "يُعدّ معدن الكوارتز من المعادن أحادية العنصر لأنه يتكون من عنصر واحد فقط.",
+            options: ["صواب", "خطأ"],
+            correct: 1,
+            explanation: "الكوارتز معدن مركب يتكون من اتحاد عنصري السيليكون والأكسجين، بينما الذهب مثال على المعدن أحادي العنصر."
+        },
+        {
+            type: "mcq",
+            question: "عندما تبرد الماغما بطيئاً في أعماق باطن الأرض، يتكون صخر ناري يتميز بـ:",
+            options: [
+                "نسيج ناعم لا يمكن رؤية حبيباته بالعين المجردة مثل البازلت",
+                "نسيج خشن بحبيبات كبيرة يمكن رؤيتها بالعين المجردة مثل الغرانيت",
+                "طبقات متراكمة من فتات الصخور الرسوبية",
+                "تحول كامل في التركيب المعدني نتيجة تبخر المياه"
+            ],
+            correct: 1,
+            explanation: "التبريد البطيء للماغما في باطن الأرض يعطي وقتاً كافياً لتشكل حبيبات كبيرة، فيكون النسيج خشناً كما في صخر الغرانيت."
+        },
+        {
+            type: "mcq",
+            question: "تسمى الصخور المنصهرة عندما تخرج إلى سطح الأرض وتفقد معظم غازاتها المذابة بـ:",
+            options: ["الماغما", "اللابة", "القواطع النارية", "الرماد البركاني"],
+            correct: 1,
+            explanation: "تسمى المادة المنصهرة داخل باطن الأرض (الماغما)، وعند خروجها للسطح وفقدان معظم غازاتها المذابة يصبح اسمها (اللابة)."
+        },
+        {
+            type: "tf",
+            question: "القصبة هي القناة التي تصل بين حجرة الماغما وفوهة البركان على سطح الأرض.",
+            options: ["صواب", "خطأ"],
+            correct: 0,
+            explanation: "صحيح، القصبة هي الممر القنائي الذي تصعد عبره الماغما من الحجرة الجوفية نحو الفوهة."
+        },
+        {
+            type: "mcq",
+            question: "البركان الذي يتكون من تعاقب اندفاعات هادئة تشكل طبقات لابة واندفاعات قوية تطاير مواد صلبة هو:",
+            options: ["البركان المخروطي", "البركان الدرعي", "البركان المركب", "القاطع الناري"],
+            correct: 2,
+            explanation: "البركان المركب يتميز بانحدار متوسط ويبدأ بثوران هادئ تنساب فيه اللابة ثم يعقبه ثوران قوي يتجمع فيه الفتات والمواد الصلبة."
+        },
+        {
+            type: "mcq",
+            question: "يتكون الصخر الجيري العضوي عن طريق:",
+            options: [
+                "تراكم بقايا الكائنات الحية وهياكلها وأصدافها عبر الزمن",
+                "تبخر مياه البحار المشبعة بالأملاح",
+                "تبريد اللابة السريع فوق سطح الأرض",
+                "تعرض صخر الرخام لضغط وحرارة شديدين"
+            ],
+            correct: 0,
+            explanation: "الصخور الرسوبية العضوية (مثل الصخر الجيري العضوي) تنشأ من تراكم هيكل وبقايا الكائنات الحية والأصداف وتصلبها."
+        },
+        {
+            type: "tf",
+            question: "تتكون الصخور الملحية عندما تتبخر المياه المشبعة بالأملاح وتترسب في طبقات صلبة.",
+            options: ["صواب", "خطأ"],
+            correct: 0,
+            explanation: "صحيح، عند تبخر مياه البحار والمحيطات المشبعة بالأملاح تتجمع الأملاح المترسبة لتشكل صخوراً رسوبية ملحية."
+        },
+        {
+            type: "mcq",
+            question: "تتحول الصخور في باطن الأرض إلى صخور متحولة بشرط مهم وهو أن تكون في:",
+            options: [
+                "الحالة المنصهرة تماماً مثل الماغما",
+                "الحالة الصلبة عند تعرضها لضغط وحرارة شديدين",
+                "أعماق البحار والمحيطات فقط",
+                "حالة الغازات المذابة بفعل التجوية"
+            ],
+            correct: 1,
+            explanation: "التحول يحدث للصخور بأنواعها عند تعرضها لضغط وحرارة شديدين في باطن الأرض وهي تظل في الحالة الصلبة دون انصهار كامل."
+        },
+        {
+            type: "tf",
+            question: "يُعد صخر الرخام وصخر الشيست من الأمثلة الشائعة على الصخور الرسوبية.",
+            options: ["صواب", "خطأ"],
+            correct: 1,
+            explanation: "الرخام والشيست هما أمثلة على الصخور المتحولة، بينما الصخر الرملي والجيري من الأمثلة على الصخور الرسوبية."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[currentQuestionIndex];
+        
+        document.getElementById('progress-badge').innerText = `السؤال ${currentQuestionIndex + 1} من ${questions.length}`;
+        document.getElementById('question-text').innerText = q.question;
+        document.getElementById('feedback-box').className = 'feedback-box';
+        document.getElementById('btn-next').style.display = 'none';
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.innerText = opt;
+            btn.onclick = () => selectAnswer(index);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(selectedIndex) {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.btn-option');
+        const feedbackBox = document.getElementById('feedback-box');
+
+        buttons.forEach((btn, index) => {
+            btn.disabled = true;
+            if (index === q.correct) {
+                btn.classList.add('correct');
+            }
+        });
+
+        if (selectedIndex === q.correct) {
+            score++;
+            document.getElementById('score-live').innerText = `النتيجة: ${score}`;
+            feedbackBox.className = 'feedback-box correct';
+            feedbackBox.innerHTML = `<strong>✔ إجابة صحيحة!</strong><br>${q.explanation}`;
+        } else {
+            buttons[selectedIndex].classList.add('incorrect');
+            feedbackBox.className = 'feedback-box incorrect';
+            feedbackBox.innerHTML = `<strong>✖ إجابة غير صحيحة.</strong><br>الإجابة الصحيحة هي: <u>${q.options[q.correct]}</u>.<br>${q.explanation}`;
+        }
+
+        document.getElementById('btn-next').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'block';
+        document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
+        
+        const msg = document.getElementById('performance-msg');
+        const percentage = (score / questions.length) * 100;
+        
+        if (percentage === 100) {
+            msg.innerText = "أداء ممتاز! لقد أجبت على جميع الأسئلة بشكل صحيح. 🌟";
+            msg.style.color = "#15803d";
+        } else if (percentage >= 70) {
+            msg.innerText = "عمل رائع! فهمك للمفاهيم الجيولوجية ممتاز. 👍";
+            msg.style.color = "#0369a1";
+        } else if (percentage >= 50) {
+            msg.innerText = "أداء جيد، يُنصح بتمكين بعض المفاهيم الخاصة بأنواع الصخور. 📚";
+            msg.style.color = "#d97706";
+        } else {
+            msg.innerText = "تحتاج إلى إعادة مراجعة الدرس بتركيز أكبر. بالتوفيق! 📖";
+            msg.style.color = "#b91c1c";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById('score-live').innerText = `النتيجة: 0`;
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('results-screen').style.display = 'none';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
