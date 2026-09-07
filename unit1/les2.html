@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار علوم: العمر النسبي والمطلق للصخور</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --secondary-color: #2980b9;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --error-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 750px;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .quiz-header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .quiz-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .quiz-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: #eef2f5;
+            border-color: var(--secondary-color);
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda !important;
+            border-color: var(--accent-color) !important;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da !important;
+            border-color: var(--error-color) !important;
+            color: #721c24;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #e8f4f8;
+            border-right: 4px solid var(--secondary-color);
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .nav-controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-next {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        .btn-next:hover {
+            background-color: #1f6690;
+        }
+
+        .results-card {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .score-circle span {
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        .restart-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .restart-btn:hover {
+            background-color: #219150;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1>اختبار العلوم التفاعلي 🧪</h1>
+        <p>الدرس الثاني: العمر النسبي للصخور والعمر المطلق</p>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div id="quizBody">
+        <!-- Questions injected via JS -->
+    </div>
+
+    <div class="nav-controls">
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()">السؤال التالي ➔</button>
+    </div>
+
+    <div class="results-card" id="resultsCard">
+        <h2>أحسنت! أكملت الاختبار 🎉</h2>
+        <div class="score-circle" id="scoreCircle">
+            <div id="scoreText">0/0</div>
+            <span>النتيجة النهائية</span>
+        </div>
+        <p id="resultFeedback" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
+        <button class="restart-btn" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "من العالم الذي وضع مبدأ «تعاقب الطبقات»، والذي يُعد حجر الأساس في تحديد العمر النسبي للصخور؟",
+            options: ["العالم سميث", "العالم ستينو", "العالم نيوتن", "العالم داروين"],
+            correct: 1,
+            explanation: "وضع العالم ستينو (Steno) مبدأ تعاقب الطبقات الذي ينص على أن كل طبقة رسوبية تكون أحدث من التي أسفلها وأقدم من التي تعلوها."
+        },
+        {
+            question: "ما المقصود بمبدأ «تعاقب الطبقات»؟",
+            options: [
+                "كل طبقة رسوبية أحدث من الطبقة التي تعلوها",
+                "كل طبقة رسوبية أحدث من الطبقة التي أسفلها، وأقدم من الطبقة التي تعلوها",
+                "جميع الطبقات الرسوبية تتكون في الوقت نفسه",
+                "الطبقات السفلى تكون أحدث دائماً من الطبقات العليا"
+            ],
+            correct: 1,
+            explanation: "مبدأ تعاقب الطبقات ينص على أن الطبقة السفلى هي الأقدم، وتكون الطبقة أحدث من التي أسفلها وأقدم من التي تعلوها."
+        },
+        {
+            question: "المطابقة بين الطبقات الصخرية في المناطق المختلفة من حيث نوع صخورها وعمرها تُعرف بـ:",
+            options: ["التتابع الطبقي", "المضاهاة", "العمر المطلق", "القاطع والمقطوع"],
+            correct: 1,
+            explanation: "المضاهاة (Correlation) هي مطابقة الطبقات الصخرية في المناطق المختلفة من سطح الأرض من حيث نوع صخورها وعمرها."
+        },
+        {
+            question: "أي أنواع المضاهاة تعتمد على نوع الصخر وتكون عبر مسافات قريبة؟",
+            options: ["المضاهاة الأحفورية", "المضاهاة الصخرية", "المضاهاة الزمنية", "المضاهاة الإشعاعية"],
+            correct: 1,
+            explanation: "المضاهاة الصخرية (Lithocorrelation) هي مضاهاة لطبقات صخرية عبر مسافات قريبة اعتماداً على نوع الصخر."
+        },
+        {
+            question: "إذا تشابهت الأحافير في طبقة صخرية في الموقع (1) مع أحافير في الموقع (2) عبر مسافة بعيدة (مثل 100km)، فإن هذا يُسمى:",
+            options: ["مضاهاة صخرية", "مضاهاة أحفورية", "تاريخاً مطلقاً", "قاطعاً نارياً"],
+            correct: 1,
+            explanation: "المضاهاة الأحفورية (Biocorrelation) تعتمد على التشابه بين الأحافير للربط بين الطبقات الصخرية ذات العمر المماثل."
+        },
+        {
+            question: "ينص مبدأ «القاطع والمقطوع» على أن:",
+            options: [
+                "القاطع أقدم من المقطوع",
+                "القاطع أحدث من المقطوع",
+                "القاطع والمقطوع تكونا في الزمن نفسه",
+                "المقطوع دائماً أحدث من القاطع"
+            ],
+            correct: 1,
+            explanation: "إذا قطع قاطع ناري طبقات صخرية، فإنه يكون أحدث عمراً من الطبقات التي قطعها (القاطع أحدث من المقطوع)."
+        },
+        {
+            question: "تحديد عمر الصخور أو الأحداث الجيولوجية بالسنين برقم محدد يُسمى:",
+            options: ["العمر النسبي", "العمر المطلق", "المضاهاة الصخرية", "السلم الجيولوجي"],
+            correct: 1,
+            explanation: "العمر المطلق (Absolute Age) هو تحديد عمر الصخور أو الأحداث الجيولوجية بالسنين برقم محدد."
+        },
+        {
+            question: "أي من العناصر الكيميائية التالية يُستعان بها لتحديد العمر المطلق للصخور؟",
+            options: [
+                "الصوديوم والكلور",
+                "البوتاسيوم واليورانيوم والروبيديوم",
+                "الأكسجين والنيتروجين",
+                "الحديد والكبريت"
+            ],
+            correct: 1,
+            explanation: "يُستعان بعناصر مثل البوتاسيوم، الأرغون، اليورانيوم، الرصاص، والروبيديوم لتحديد العمر المطلق للصخور."
+        },
+        {
+            question: "إذا كان عمر القاطع الناري (د) هو 50 مليون سنة ويقطع الطبقتين (أ، ب)، فإن عمر الطبقتين (أ، ب) يكون:",
+            options: ["أصغر من 50 مليون سنة", "أكبر من 50 مليون سنة", "يساوي 50 مليون سنة تماماً", "25 مليون سنة"],
+            correct: 1,
+            explanation: "لأن الطبقتين (أ، ب) ترسبتا قبل اندفاع القاطع الناري (د)، فإن عمرهما أقدم (أكبر) من 50 مليون سنة."
+        },
+        {
+            question: "الترتيب الصحيح للوحدات الزمنية في سلم الزمن الجيولوجي من الأكبر إلى الأصغر هو:",
+            options: [
+                "الدهور ➔ الحقب ➔ العصور ➔ الأعمار",
+                "الأعمار ➔ العصور ➔ الحقب ➔ الدهور",
+                "الحقب ➔ الدهور ➔ الأعمار ➔ العصور",
+                "العصور ➔ الحقب ➔ الدهور ➔ الأعمار"
+            ],
+            correct: 0,
+            explanation: "يُقسَم سلم الزمن الجيولوجي حسب العمر النسبي إلى: الدهور، ثم الحقب، ثم العصور، ثم الأعمار على الترتيب."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[currentQuestionIndex];
+        const quizBody = document.getElementById('quizBody');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        nextBtn.style.display = 'none';
+
+        // Update progress bar
+        const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+        quizBody.innerHTML = `
+            <div class="question-card active">
+                <div class="question-number">السؤال ${currentQuestionIndex + 1} من ${questions.length}</div>
+                <div class="question-text">${q.question}</div>
+                <div class="options-container">
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" onclick="selectOption(${i})">${opt}</button>
+                    `).join('')}
+                </div>
+                <div class="explanation" id="explanationText">${q.explanation}</div>
+            </div>
+        `;
+    }
+
+    function selectOption(index) {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const explanation = document.getElementById('explanationText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (index === q.correct) {
+            buttons[index].classList.add('correct');
+            score++;
+        } else {
+            buttons[index].classList.add('incorrect');
+            buttons[q.correct].classList.add('correct');
+        }
+
+        explanation.style.display = 'block';
+
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.innerText = 'السؤال التالي ➔';
+        } else {
+            nextBtn.innerText = 'عرض النتيجة 🏆';
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quizBody').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('progressFill').style.width = '100%';
+
+        const resultsCard = document.getElementById('resultsCard');
+        const scoreText = document.getElementById('scoreText');
+        const feedback = document.getElementById('resultFeedback');
+
+        scoreText.innerText = `${score}/${questions.length}`;
+        resultsCard.style.display = 'block';
+
+        const percentage = (score / questions.length) * 100;
+        if (percentage >= 90) {
+            feedback.innerText = "ممتاز جداً! أداء رائع ومعرفة تامة بمبادئ التأريخ الجيولوجي 🌟";
+        } else if (percentage >= 70) {
+            feedback.innerText = "جيد جداً! لديك فهم قوي لمعظم مفاهيم الدرس 👍";
+        } else if (percentage >= 50) {
+            feedback.innerText = "مستوى مقبول، يُفضل مراجعة مبادئ المضاهاة والعمر المطلق مرة أخرى 📘";
+        } else {
+            feedback.innerText = "تحتاج إلى إعادة قراءة الدرس والتركيز على مفاهيم التأريخ النسبي والمطلق 🔄";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById('quizBody').style.display = 'block';
+        document.getElementById('resultsCard').style.display = 'none';
+        loadQuestion();
+    }
+
+    // Initialize quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>
