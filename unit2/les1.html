@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار علوم: كواكب النظام الشمسي (مع مؤقت زمني)</title>
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --accent-color: #00c853;
+            --secondary-color: #0288d1;
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-color: #263238;
+            --error-color: #d32f2f;
+            --warning-color: #e65100;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            width: 100%;
+            max-width: 780px;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .quiz-header {
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin: 0 0 6px 0;
+        }
+
+        .quiz-header p {
+            color: #546e7a;
+            font-size: 0.95rem;
+            margin: 4px 0;
+        }
+
+        .teacher-tag {
+            display: inline-block;
+            background-color: #e8eaf6;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .header-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .timer-box {
+            background-color: #fff3e0;
+            color: var(--warning-color);
+            border: 2px solid #ffe0b2;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .timer-box.warning {
+            background-color: #ffebee;
+            color: var(--error-color);
+            border-color: #ffcdd2;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            color: var(--text-color);
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: #e1f5fe;
+            border-color: var(--secondary-color);
+        }
+
+        .option-btn.correct {
+            background-color: #e8f5e9 !important;
+            border-color: var(--accent-color) !important;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #ffebee !important;
+            border-color: var(--error-color) !important;
+            color: #b71c1c;
+        }
+
+        .explanation {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 8px;
+            background-color: #e1f5fe;
+            border-right: 5px solid var(--secondary-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .nav-controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-next {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        .btn-next:hover {
+            background-color: #0d47a1;
+        }
+
+        .results-card {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 2.2rem;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .score-circle span {
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .restart-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background-color: #00a142;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1>اختبار العلوم التفاعلي 🪐</h1>
+        <p>الدرس الأول: كواكب النظام الشمسي وحركتها</p>
+        <div class="teacher-tag">إعداد: الأستاذ أنس المزرعاوي</div>
+    </div>
+
+    <div class="header-status-bar" id="statusBar">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="timer-box" id="timerBox">
+            ⏱️ <span id="timerText">30</span> ثانية
+        </div>
+    </div>
+
+    <div id="quizBody">
+        <!-- Questions will be injected here -->
+    </div>
+
+    <div class="nav-controls">
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()">السؤال التالي ➔</button>
+    </div>
+
+    <div class="results-card" id="resultsCard">
+        <h2>أحسنت! أكملت الاختبار بنجاح 🎉</h2>
+        <div class="score-circle" id="scoreCircle">
+            <div id="scoreText">0/0</div>
+            <span>النتيجة النهائية</span>
+        </div>
+        <p id="resultFeedback" style="font-size: 1.1rem; margin-bottom: 20px; color: #37474f;"></p>
+        <button class="restart-btn" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "تُسمّى الكواكب الداخلية بالكواكب الصخرية لأنها شبيهة بالأرض، وتتكون هذه المجموعة من الكواكب الآتية:",
+            options: [
+                "عطارد، والزهرة، والأرض، والمريخ",
+                "المشتري، وزحل، وأورانوس، ونبتون",
+                "عطارد، والمشتري، والزهرة، وزحل",
+                "الأرض، والمريخ، والمشتري، ونبتون"
+            ],
+            correct: 0,
+            explanation: "الكواكب الداخلية (الصخرية) هي الأقرب إلى الشمس وتضم: عطارد، والزهرة، والأرض، والمريخ."
+        },
+        {
+            question: "من الخصائص الفيزيائية المميزة لمجموعة الكواكب الخارجية (الغازية):",
+            options: [
+                "صغيرة الحجم وبطيئة الدوران حول نفسها",
+                "حجمها كبير، ودورانها حول نفسها سريع، وكثافتها متدنية",
+                "كثافتها عالية جداً ولها أسطح صلبة",
+                "أقمارها قليلة أو بدون أقمار"
+            ],
+            correct: 1,
+            explanation: "تتميز الكواكب الخارجية بحجمها الكبير، ودورانها السريع حول نفسها، وكثافتها المتدنية، وأقمارها الكثيرة وحلقاتها."
+        },
+        {
+            question: "تتميز القاعدة العامة بأنه كلما زاد بعد الكوكب عن الشمس انخفضت حرارته، ما الكوكب الذي يُشكل استثناءً بارتفاع حرارة سطحه بشكل كبير؟",
+            options: ["كوكب عطارد", "كوكب المشتري", "كوكب الزهرة", "كوكب المريخ"],
+            correct: 2,
+            explanation: "يتميز كوكب الزهرة بدرجة حرارة مرتفعة جداً (تصل إلى 464°C) نتيجة غلافه الجوي الكثيف الذي يحتبس الحرارة."
+        },
+        {
+            question: "يميل محور دوران الأرض عن الخط العمودي بمقدار ثابـت يساوي تقريباً:",
+            options: ["15 درجة", "23.4 درجة", "45 درجة", "90 درجة"],
+            correct: 1,
+            explanation: "يميل محور الأرض بمقدار (23.4) درجة تقريباً عن الخط العمودي، ويكون ثابت الاتجاه دائماً أثناء الدوران."
+        },
+        {
+            question: "ينتج عن دوران الأرض حول محورها دورة واحدة كاملة كل 24 ساعة ظاهرة:",
+            options: ["تعاقب الفصول الأربعة", "تعاقب الليل والنهار", "السنة الكبيسة", "ظاهرة خسوف القمر"],
+            correct: 1,
+            explanation: "ينتج عن دوران الأرض حول محورها المقابل للشمس كل 24 ساعة تعاقب الليل والنهار."
+        },
+        {
+            question: "ما السبب الرئيسي الكامن وراء حدوث ظاهرة «تعاقب الفصول الأربعة»؟",
+            options: [
+                "دوران القمر حول الأرض فقط",
+                "تغير المسافة بين الأرض والشمس من شهر لآخر",
+                "دوران الأرض حول الشمس مع ميل محورها وثبات اتجاهه",
+                "سرعة دوران الأرض حول نفسها"
+            ],
+            correct: 2,
+            explanation: "يسبب دوران الأرض حول الشمس (خلال 365.25 يوماً) مع ميل محورها وثبات اتجاهه تغير زاوية سقوط الأشعة الشمسية، مما يسبب تعاقب الفصول الأربعة."
+        },
+        {
+            question: "لتعديل الفارق الناتِج عن ربع اليوم (0.25) في السنة الشمسية، تُضاف ركيزة يوم إلى شهر شباط كل 4 سنوات لتصبح «السنة الكبيسة» مكونة من:",
+            options: ["365 يوماً", "366 يوماً", "364 يوماً", "360 يوماً"],
+            correct: 1,
+            explanation: "تصبح السنة الكبيسة 366 يوماً بعد إضافة يوم إلى شهر شباط (ليصبح 29 يوماً) مرة كل أربع سنوات."
+        },
+        {
+            question: "أي من كواكب النظام الشمسي يمتلك الحلقات الأوضح والأكثر بروزاً حوله؟",
+            options: ["كوكب المشتري", "كوكب أورانوس", "كوكب زحل", "كوكب نبتون"],
+            correct: 2,
+            explanation: "تمتاز جميع الكواكب الخارجية بوجود حلقات، ولكن أوضحها وأبرزها هي حلقات كوكب زحل."
+        },
+        {
+            question: "اعتماداً على بيانات الدرس، أي الكواكب التالية لا يمتلك أي أقمار تدور حوله؟",
+            options: ["الأرض والمريخ", "عطارد والزهرة", "أورانوس ونبتون", "زحل والمشتري"],
+            correct: 1,
+            explanation: "وفق الجدول الوارد في الدرس، فإن كوكبي عطارد والزهرة لا يمتلكان أي أقمار."
+        },
+        {
+            question: "تدور الكواكب حول الشمس في مسارات محددة تمنع تصادمها ببعضها مع أنها في حركة مستمرة، شكل هذه المدارات هو:",
+            options: ["دائري تام", "إهليليجي (بيضوي) قريبة من الدائرية", "حلزوني مفتوح", "مستقيم متوازي"],
+            correct: 1,
+            explanation: "تدور الكواكب في مدارات محددة إهليليجية الشكل قريبة من الدائرية؛ لذا لا تتصادم ببعضها أثناء دورانها."
+        }
+    ];
+
+    const QUESTION_TIME_LIMIT = 30; // Time in seconds per question
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+    let timeLeft = QUESTION_TIME_LIMIT;
+    let timerInterval = null;
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = QUESTION_TIME_LIMIT;
+        updateTimerUI();
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerUI();
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const timerText = document.getElementById('timerText');
+        const timerBox = document.getElementById('timerBox');
+
+        timerText.innerText = timeLeft;
+
+        if (timeLeft <= 10) {
+            timerBox.classList.add('warning');
+        } else {
+            timerBox.classList.remove('warning');
+        }
+    }
+
+    function handleTimeout() {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const explanation = document.getElementById('explanationText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        buttons.forEach(btn => btn.disabled = true);
+        
+        // Highlight correct option
+        buttons[q.correct].classList.add('correct');
+
+        explanation.innerHTML = `⚠️ <strong>انتهى الوقت المحدد للسؤال!</strong><br>${q.explanation}`;
+        explanation.style.display = 'block';
+
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.innerText = 'السؤال التالي ➔';
+        } else {
+            nextBtn.innerText = 'عرض النتيجة 🏆';
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[currentQuestionIndex];
+        const quizBody = document.getElementById('quizBody');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        nextBtn.style.display = 'none';
+
+        const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+        quizBody.innerHTML = `
+            <div class="question-card active">
+                <div class="question-number">السؤال ${currentQuestionIndex + 1} من ${questions.length}</div>
+                <div class="question-text">${q.question}</div>
+                <div class="options-container">
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" onclick="selectOption(${i})">${opt}</button>
+                    `).join('')}
+                </div>
+                <div class="explanation" id="explanationText">${q.explanation}</div>
+            </div>
+        `;
+
+        startTimer();
+    }
+
+    function selectOption(index) {
+        if (answered) return;
+        answered = true;
+        clearInterval(timerInterval); // Stop timer on response
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const explanation = document.getElementById('explanationText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (index === q.correct) {
+            buttons[index].classList.add('correct');
+            score++;
+        } else {
+            buttons[index].classList.add('incorrect');
+            buttons[q.correct].classList.add('correct');
+        }
+
+        explanation.style.display = 'block';
+
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.innerText = 'السؤال التالي ➔';
+        } else {
+            nextBtn.innerText = 'عرض النتيجة 🏆';
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        clearInterval(timerInterval);
+        document.getElementById('quizBody').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('statusBar').style.display = 'none';
+
+        const resultsCard = document.getElementById('resultsCard');
+        const scoreText = document.getElementById('scoreText');
+        const feedback = document.getElementById('resultFeedback');
+
+        scoreText.innerText = `${score}/${questions.length}`;
+        resultsCard.style.display = 'block';
+
+        const percentage = (score / questions.length) * 100;
+        if (percentage >= 90) {
+            feedback.innerText = "ممتاز جداً! أداء استثنائي وسرعة بديهة عالية في الإجابة 🌟";
+        } else if (percentage >= 70) {
+            feedback.innerText = "أحسنت! نتيجة رائعة وفهم قوي لمفاهيم الدرس 👍";
+        } else if (percentage >= 50) {
+            feedback.innerText = "مستوى جيد، ننصح بمراجعة الدرس لزيادة سرعة ودقة الإجابات 📘";
+        } else {
+            feedback.innerText = "يحتاج الطالب إلى إعادة قراءة الدرس والتركيز على الخصائص الفيزيائية والحركات 🔄";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById('quizBody').style.display = 'block';
+        document.getElementById('statusBar').style.display = 'flex';
+        document.getElementById('resultsCard').style.display = 'none';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
