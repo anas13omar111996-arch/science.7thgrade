@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار العلوم: القوى وتأثيرها في الأجسام</title>
+    <style>
+        :root {
+            --primary-color: #3f51b5;
+            --accent-color: #00c853;
+            --secondary-color: #5c6bc0;
+            --bg-color: #e8eaf6;
+            --card-bg: #ffffff;
+            --text-color: #263238;
+            --error-color: #d32f2f;
+            --warning-color: #e65100;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            width: 100%;
+            max-width: 780px;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .quiz-header {
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin: 0 0 6px 0;
+        }
+
+        .quiz-header p {
+            color: #546e7a;
+            font-size: 0.95rem;
+            margin: 4px 0;
+        }
+
+        .teacher-tag {
+            display: inline-block;
+            background-color: #e8eaf6;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .header-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .timer-box {
+            background-color: #fff3e0;
+            color: var(--warning-color);
+            border: 2px solid #ffe0b2;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .timer-box.warning {
+            background-color: #ffebee;
+            color: var(--error-color);
+            border-color: #ffcdd2;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            color: var(--text-color);
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: #e8eaf6;
+            border-color: var(--primary-color);
+        }
+
+        .option-btn.correct {
+            background-color: #e8f5e9 !important;
+            border-color: var(--accent-color) !important;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #ffebee !important;
+            border-color: var(--error-color) !important;
+            color: #b71c1c;
+        }
+
+        .explanation {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 8px;
+            background-color: #e3f2fd;
+            border-right: 5px solid var(--secondary-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .nav-controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-next {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        .btn-next:hover {
+            background-color: #303f9f;
+        }
+
+        .results-card {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 2.2rem;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .score-circle span {
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .restart-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background-color: #00a142;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1>اختبار العلوم التفاعلي ⚡🦾</h1>
+        <p>الدرس: القوى وتأثيرها في الأجسام (المحصلة، القوى المتزنة، وقوانين نيوتن)</p>
+        <div class="teacher-tag">إعداد: الأستاذ أنس المزرعاوي</div>
+    </div>
+
+    <div class="header-status-bar" id="statusBar">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="timer-box" id="timerBox">
+            ⏱️ <span id="timerText">30</span> ثانية
+        </div>
+    </div>
+
+    <div id="quizBody">
+        <!-- الأسئلة سيتم إنشاؤها عبر JavaScript -->
+    </div>
+
+    <div class="nav-controls">
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()">السؤال التالي ➔</button>
+    </div>
+
+    <div class="results-card" id="resultsCard">
+        <h2>أحسنت! أكملت الاختبار بنجاح 🎉</h2>
+        <div class="score-circle" id="scoreCircle">
+            <div id="scoreText">0/0</div>
+            <span>النتيجة النهائية</span>
+        </div>
+        <p id="resultFeedback" style="font-size: 1.1rem; margin-bottom: 20px; color: #37474f;"></p>
+        <button class="restart-btn" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "كيف يُعرَّف مفهوم «القوة (Force)» في الفيزياء وفقاً لما ورد في الدرس؟",
+            options: [
+                "مقدار المسافة التي يقطعها الجسم المتحرك في زمن محدد",
+                "مؤثر خارجي يُغيّر من الحالة الحركية للجسم أو شكله أو الاثنين معاً",
+                "الفرق بين الموقع النهائي والموقع الابتدائي للجسم",
+                "طول المسار الفعلي السالك بين نقطتين"
+            ],
+            correct: 1,
+            explanation: "القوة هي مؤثر خارجي يغيّر من الحالة الحركية للجسم أو شكله أو الاثنين معاً، وتُعد كمية متجهة تُقاس بوحدة نيوتن[cite: 54]."
+        },
+        {
+            question: "ما هي وحدة قياس القوة في النظام الدولي للوحدات (SI)، وتكريماً لمن أُطلقت؟",
+            options: [
+                "الجول (J)، تكريماً للعالم جيمس جول",
+                "النيوتن (N)، تكريماً للعالم إسحق نيوتن",
+                "الباسكال (Pa)، تكريماً لبليز باسكال",
+                "المتر (m)، تكريماً لغاليليو غاليلي"
+            ],
+            correct: 1,
+            explanation: "تُقاس القوة في النظام الدولي للوحدات بوحدة نيوتن (N)، تكريماً للعالم إسحق نيوتن[cite: 54]."
+        },
+        {
+            question: "إذا أثرت في جسم قوتان بالاتجاه نفسه، فإن «القوة المحصلة ($F_R$)» تساوي:",
+            options: [
+                "الفرق بين مقداريهما واتجاهها نحو القوة الصغرى",
+                "مجموعهما وتكون بالاتجاه نفسه",
+                "صفراً دائماً لأن القوتين تلغيان بعضهما",
+                "حاصل ضربهما مقسوماً على الكتلة"
+            ],
+            correct: 1,
+            explanation: "إذا أثرت في الجسم قوتان بالاتجاه نفسه، فإن القوة المحصلة تساوي مجموعهما وبالاتجاه نفسه[cite: 55]."
+        },
+        {
+            question: "متى توصف القوى المؤثرة في جسم بأنها «قوى متزنة (Balanced Forces)»؟",
+            options: [
+                "عندما تكون محصلة القوى لا تساوي صفراً وتحدث تغيراً حركياً",
+                "عندما تؤثر قوتان متساويتان مقداراً ومتعاكستان اتجاهأً فتكون محصلتهما صفراً",
+                "عندما يتحرك الجسم بتسارع متزايد نحو اليمين",
+                "عندما تتساوى كتل الأجسام بغض النظر عن القوى المؤثرة"
+            ],
+            correct: 1,
+            explanation: "القوى المتزنة هي التي تؤثر فيها قوتان متساويتان مقداراً ومتعاكستان في الاتجاه، فتلغيان أثر بعضهما وتكون المحصلة صفراً[cite: 56]."
+        },
+        {
+            question: "ماذا ينص «القانون الأول لنيوتن» في الحركة؟",
+            options: [
+                "القوة المحصلة تساوي الكتلة مضروبة في التسارع",
+                "الجسم الساكن يبقى ساكناً والجسم المتحرك يستمر بسرعة ثابتة بخط مستقيم ما لم تؤثر فيه قوى غير متزنة",
+                "لكل فعل رد فعل مساوٍ له في المقدار ومعاكس له في الاتجاه",
+                "تتناسب سرعة الجسم طردياً مع مربع المسافة المقطوعة"
+            ],
+            correct: 1,
+            explanation: "ينص القانون الأول لنيوتن على أن الجسم الساكن يبقى ساكناً، والجسم المتحرك يستمر في حركته بسرعة ثابتة بخط مستقيم ما لم تؤثر فيه قوى غير متزنة."
+        },
+        {
+            question: "كيف تتأثر حركة الأجسام وفقاً لـ«القانون الثاني لنيوتن» عند زيادة القوة المحصلة المؤثرة فيها؟",
+            options: [
+                "كلما كانت القوة المحصلة أكبر، يكون التغير في سرعة الجسم أكبر في المدة الزمنية نفسها",
+                "لا يحدث أي تغير في سرعة الجسم مهما زادت القوة",
+                "تتوقف حركة الجسم فوراً ويصبح ساكناً",
+                "تتناقص كتلة الجسم بشكل طردي مع القوة المؤثرة"
+            ],
+            correct: 0,
+            explanation: "يوضح القانون الثاني أنه كلما كانت القوة المحصلة المؤثرة في الجسم أكبر، يكون التغير في سرعة الجسم أكبر في المدة الزمنية نفسها."
+        },
+        {
+            question: "ما مضمون «القانون الثالث لنيوتن» (الفعل ورد الفعل)؟",
+            options: [
+                "القوة المحصلة لأي نظام متزن تساوي دائماً 10 نيوتن",
+                "إذا أثر الجسم الأول بقوة في الجسم الثاني، فإن الجسم الثاني يؤثر بقوة مساوية بالمقدار ومعاكسة بالاتجاه",
+                "سرعة الأجسام الساقطة لا تعتمد على كتلتها في الفراغ المطلق",
+                "القوى المؤثرة في الأجسام الساكنة تكون دائماً غير متزنة"
+            ],
+            correct: 1,
+            explanation: "ينص القانون الثالث لنيوتن على أنه إذا أثر الجسم الأول بقوة في الجسم الثاني، فإن الجسم الثاني يؤثر في الجسم الأول بقوة مساوية بالمقدار ومعاكسة في الاتجاه."
+        },
+        {
+            question: "أثرت قوتان في صندوق باتجاهين متعاكسين؛ الأولى ($400~N$) نحو اليمين، والثانية ($300~N$) نحو اليسار. ما مقدار واتجاه القوة المحصلة ($F_R$)؟",
+            options: [
+                "$700~N$ نحو اليمين",
+                "$100~N$ نحو اليسار",
+                "$100~N$ نحو اليمين",
+                "صفر (القوى متزنة)"
+            ],
+            correct: 2,
+            explanation: "القوة المحصلة تساوي الفرق بين القوتين ($400 - 300 = 100~N$) ويكون اتجاهها في اتجاه القوة الكبرى (نحو اليمين)[cite: 57]."
+        },
+        {
+            question: "عندما يجلس شخص على عربة ويدفع الجدار بقدميه فيتحرك للخلف، ما الذي يفسر حركة العربة للخلف بناءً على قوانين نيوتن؟",
+            options: [
+                "القانون الأول لنيوتن بسبب انعدام الاحتكاك",
+                "القانون الثاني لنيوتن بسبب زيادة الكتلة",
+                "القانون الثالث لنيوتن (تأثير قوة رد فعل الجدار المساوي بالمقدار والمعاكس بالاتجاه)",
+                "قانون الجذب العام للكتل الأرضية"
+            ],
+            correct: 2,
+            explanation: "يفسر ذلك بالقانون الثالث لنيوتن؛ فالجدار يؤثر في الجسم بقوة رد فعل مساوية بالمقدار ومعاكسة بالاتجاه لقوة الدفع."
+        },
+        {
+            question: "ماذا يحدث للحالة الحركية للجسم إذا كانت القوة المحصلة المؤثرة فيه لا تساوي صفراً ($F_R \neq 0$)؟",
+            options: [
+                "تبقى حالة الجسم الحركية ثابتة تماماً دون أي تغير",
+                "يتغير إما مقدار سرعته أو اتجاه حركته (تتغير حالته الحركية)",
+                "يتحول الجسم فوراً إلى حالة السكون التام",
+                "تتلاشى كتلته وتصبح صفراً"
+            ],
+            correct: 1,
+            explanation: "القوة غير المتزنة (التي محصلتها لا تساوي صفراً) تؤدي إلى تغير الحالة الحركية للجسم وتغيير سرعته أو اتجاهه[cite: 55]."
+        }
+    ];
+
+    const QUESTION_TIME_LIMIT = 30;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+    let timeLeft = QUESTION_TIME_LIMIT;
+    let timerInterval = null;
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = QUESTION_TIME_LIMIT;
+        updateTimerUI();
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerUI();
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const timerText = document.getElementById('timerText');
+        const timerBox = document.getElementById('timerBox');
+
+        timerText.innerText = timeLeft;
+
+        if (timeLeft <= 10) {
+            timerBox.classList.add('warning');
+        } else {
+            timerBox.classList.remove('warning');
+        }
+    }
+
+    function handleTimeout() {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const explanation = document.getElementById('explanationText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        buttons.forEach(btn => btn.disabled = true);
+        buttons[q.correct].classList.add('correct');
+
+        explanation.innerHTML = `⚠️ <strong>انتهى الوقت المحدد للسؤال!</strong><br>${q.explanation}`;
+        explanation.style.display = 'block';
+
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.innerText = 'السؤال التالي ➔';
+        } else {
+            nextBtn.innerText = 'عرض النتيجة 🏆';
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[currentQuestionIndex];
+        const quizBody = document.getElementById('quizBody');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        nextBtn.style.display = 'none';
+
+        const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+        quizBody.innerHTML = `
+            <div class="question-card active">
+                <div class="question-number">السؤال ${currentQuestionIndex + 1} من ${questions.length}</div>
+                <div class="question-text">${q.question}</div>
+                <div class="options-container">
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" onclick="selectOption(${i})">${opt}</button>
+                    `).join('')}
+                </div>
+                <div class="explanation" id="explanationText">${q.explanation}</div>
+            </div>
+        `;
+
+        startTimer();
+    }
+
+    function selectOption(index) {
+        if (answered) return;
+        answered = true;
+        clearInterval(timerInterval);
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const explanation = document.getElementById('explanationText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (index === q.correct) {
+            buttons[index].classList.add('correct');
+            score++;
+        } else {
+            buttons[index].classList.add('incorrect');
+            buttons[q.correct].classList.add('correct');
+        }
+
+        explanation.style.display = 'block';
+
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.innerText = 'السؤال التالي ➔';
+        } else {
+            nextBtn.innerText = 'عرض النتيجة 🏆';
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        clearInterval(timerInterval);
+        document.getElementById('quizBody').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('statusBar').style.display = 'none';
+
+        const resultsCard = document.getElementById('resultsCard');
+        const scoreText = document.getElementById('scoreText');
+        const feedback = document.getElementById('resultFeedback');
+
+        scoreText.innerText = `${score}/${questions.length}`;
+        resultsCard.style.display = 'block';
+
+        const percentage = (score / questions.length) * 100;
+        if (percentage >= 90) {
+            feedback.innerText = "ممتاز جداً! أداء استثنائي وفهم متكامل لمفاهيم القوى وقوانين نيوتن الثلاثة 🌟";
+        } else if (percentage >= 70) {
+            feedback.innerText = "أحسنت! أداء رائع وفهم قوي لحساب القوة المحصلة والقوى المتزنة 👍";
+        } else if (percentage >= 50) {
+            feedback.innerText = "مستوى جيد، مراجعة بسيطة لقوانين نيوتن وتطبيقاتها تضمن لك العلامة الكاملة 📘";
+        } else {
+            feedback.innerText = "ينصح بإعادة قراءة الدرس والتركيز على مفهوم القوة المحصلة وقوانين الحركة 🔄";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById('quizBody').style.display = 'block';
+        document.getElementById('statusBar').style.display = 'flex';
+        document.getElementById('resultsCard').style.display = 'none';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
