@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار العلوم: الماء في حياتنا وحالات المادة</title>
+    <style>
+        :root {
+            --primary-color: #0288d1;
+            --accent-color: #00c853;
+            --secondary-color: #26c6da;
+            --bg-color: #e1f5fe;
+            --card-bg: #ffffff;
+            --text-color: #263238;
+            --error-color: #d32f2f;
+            --warning-color: #e65100;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            width: 100%;
+            max-width: 780px;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .quiz-header {
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin: 0 0 6px 0;
+        }
+
+        .quiz-header p {
+            color: #546e7a;
+            font-size: 0.95rem;
+            margin: 4px 0;
+        }
+
+        .teacher-tag {
+            display: inline-block;
+            background-color: #e1f5fe;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .header-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .timer-box {
+            background-color: #fff3e0;
+            color: var(--warning-color);
+            border: 2px solid #ffe0b2;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .timer-box.warning {
+            background-color: #ffebee;
+            color: var(--error-color);
+            border-color: #ffcdd2;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            color: var(--text-color);
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: #e1f5fe;
+            border-color: var(--primary-color);
+        }
+
+        .option-btn.correct {
+            background-color: #e8f5e9 !important;
+            border-color: var(--accent-color) !important;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #ffebee !important;
+            border-color: var(--error-color) !important;
+            color: #b71c1c;
+        }
+
+        .explanation {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 8px;
+            background-color: #e3f2fd;
+            border-right: 5px solid var(--secondary-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .nav-controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-next {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        .btn-next:hover {
+            background-color: #01579b;
+        }
+
+        .results-card {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 2.2rem;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .score-circle span {
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .restart-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background-color: #00a142;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1>اختبار العلوم التفاعلي 💧🧊</h1>
+        <p>الدرس: الماء في حياتنا (حالات الماء، خصائص المواد، الماء النقي وغير النقي)</p>
+        <div class="teacher-tag">إعداد: الأستاذ أنس المزرعاوي</div>
+    </div>
+
+    <div class="header-status-bar" id="statusBar">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="timer-box" id="timerBox">
+            ⏱️ <span id="timerText">30</span> ثانية
+        </div>
+    </div>
+
+    <div id="quizBody">
+        <!-- الأسئلة سيتم إنشاؤها عبر JavaScript -->
+    </div>
+
+    <div class="nav-controls">
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()">السؤال التالي ➔</button>
+    </div>
+
+    <div class="results-card" id="resultsCard">
+        <h2>أحسنت! أكملت الاختبار بنجاح 🎉</h2>
+        <div class="score-circle" id="scoreCircle">
+            <div id="scoreText">0/0</div>
+            <span>النتيجة النهائية</span>
+        </div>
+        <p id="resultFeedback" style="font-size: 1.1rem; margin-bottom: 20px; color: #37474f;"></p>
+        <button class="restart-btn" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "يوجد الماء في الطبيعة في ثلاث حالات هي: الصلبة، والسائلة، والغازية، ويعود اختلاف خصائصه الفيزيائية في هذه الحالات أساساً إلى:",
+            options: [
+                "اختلاف نوع جزيئات الماء المكونة له (H_2O)",
+                "قوى التجاذب بين جزيئاته والمسافات بينها",
+                "لون وكتلة الجسيمات الداخلية فقط",
+                "درجة حرارة الغرفة المحيطة بالماء دائماً"
+            ],
+            correct: 1,
+            explanation: "يتكون الماء في حالاته جميعها من جزيئات (H_2O) نفسها، لكنها تختلف في خصائصها الفيزيائية اعتماداً على قوى التجاذب بين جزيئاته والمسافات بينها."
+        },
+        {
+            question: "تتميز المادة في «الحالة الصلبة» (مثل مكعب الجليد) بأن لها:",
+            options: [
+                "شكل متغير وحجم ثابت",
+                "شكل محدد وحجم ثابت",
+                "شكل محدد وحجم متغير",
+                "شكل متغير وحجم غير ثابت"
+            ],
+            correct: 1,
+            explanation: "المادة في الحالة الصلبة لها شكل محدد وحجم ثابت لأن جسيماتها مترصة وقوى التجاذب بينها كبيرة والمسافات قليلة جداً."
+        },
+        {
+            question: "كيف تتحرك جسيمات المادة عندما تكون في «الحالة الصلبة»؟",
+            options: [
+                "حركة عشوائية وسريعة في الاتجاهات جميعها",
+                "حركة انتقالية حرة تملأ الحيز الموجودة فيه",
+                "حركة اهتزازية؛ فكل جسيم يهتز في موقعه من دون أن يغير مكانه",
+                "لا توجد أي حركة نهائية لجسيمات الصلب"
+            ],
+            correct: 2,
+            explanation: "تكون حركة جسيمات الحالة الصلبة اهتزازية؛ فكل جسيم يهتز في موقعه من دون أن يغير مكانه، مما يؤدي إلى ثبات شكلها وحجمها[cite: 42]."
+        },
+        {
+            question: "تتميز المادة في «الحالة السائلة» بأن لها:",
+            options: [
+                "شكلاً محدداً وحجماً ثابتاً",
+                "شكلاً متغيراً وحجماً غير ثابت",
+                "حجماً ثابتاً وتتخذ شكل الوعاء الذي توضع فيه",
+                "حجماً متغيراً وشكلاً ثابتاً لا يتغير"
+            ],
+            correct: 2,
+            explanation: "الماء والسوائل لها حجم ثابت، ولكن يتغير شكلها بحسب الوعاء الذي توضع فيه لأن قوى التجاذب أضعف من الصلب[cite: 41, 42]."
+        },
+        {
+            question: "تمتاز الغازات عن الحالتين الصلبة والسائلة بأنه «ليس لها حجم ثابت ولا شكل محدد»، وفسر العلماء ذلك بأن:",
+            options: [
+                "قوى التجاذب بين جسيماتها أضعف بكثير وتتبعد مسافات كبيرة تسمح بحرية الحركة",
+                "جسيماتها مترصة ومتراكمة بشكل شديد ومنتظم",
+                "حرارة الغازات منخفضة لدرجة تجمد الجسيمات",
+                "جسيماتها لا تتحرك نهائياً وتلتصق ببعضها"
+            ],
+            correct: 0,
+            explanation: "قوى التجاذب في الحالة الغازية أضعف بكثير؛ مما يجعلها تتباعد عن بعضها مسافات كبيرة تسمح لها بحرية الحركة في الاتجاهات جميعها[cite: 43]."
+        },
+        {
+            question: "لماذا تُعد «الغازات قابلة للانضغاط» بخلاف السوائل والمواد الصلبة تقريباً؟",
+            options: [
+                "لأن المسافات بين جسيماتها واسعة وكبيرة، وعند زيادة الضغط تتقارب وتزداد قوى التجاذب",
+                "لأن قوى التجاذب بين جسيماتها معدومة ولا توجد مسافات بينها",
+                "لأن حجمها ثابت دائماً ولا يتأثر بالضغط الخارجي",
+                "لأنها تفقد جزيئاتها عند زيادة الضغط عليها"
+            ],
+            correct: 0,
+            explanation: "الغازات قابلة للانضغاط؛ لأنه عند زيادة الضغط على الغاز تتقارب الجسيمات المتباعدة وتزداد قوى التجاذب فيما بينها[cite: 43]."
+        },
+        {
+            question: "يتكون «الماء النقي» (أو الماء المقطر) من نوع واحد من الجسيمات هو:",
+            options: [
+                "أملاح الذائبة وغازات الصنبور",
+                "جزيئات ($H_2O$) فقط ويخلو من أي مواد ذائبة",
+                "مزيج من الكائنات الحية الدقيقة",
+                "أيونات المعادن الثقيلة والكلور"
+            ],
+            correct: 1,
+            explanation: "يتكون الماء النقي (Pure Water) من نوع واحد من الجسيمات هي جزيئات (H_2O)، ويخلو من أي مواد ذائبة فيه[cite: 44]."
+        },
+        {
+            question: "لماذا «لا يوصل الماء النقي (المقطر) التيار الكهربائي» في الأحوال العادية؟",
+            options: [
+                "لأنه يحتوي على كميات كبيرة جداً من الأملاح السامة",
+                "لخلوه التام من الأملاح والمواد الذائبة التي تسمح بتوصيل التيار",
+                "لأنه يوجد دائماً في الحالة الصلبة (ثلج)",
+                "لأن جزيئاته تتحرك بسرعة عشوائية مفرطة"
+            ],
+            correct: 1,
+            explanation: "الماء النقي يخلو من أي مواد ذائبة فيه، بما في ذلك الأملاح؛ ولذلك لا يوصل التيار الكهربائي بالأحوال العادية[cite: 44]."
+        },
+        {
+            question: "يُعد «الماء غير النقي» (مثل ماء الصنبور الصالح للشرب) موصلاً جيداً للتيار الكهربائي بسبب:",
+            options: [
+                "وجود جزيئات (H_2O) فقط من دون إضافات",
+                "الأملاح والغازات الذائبة فيه بنسب مفيدة ومتفاوتة",
+                "احتوائه حصراً على الكائنات الحية الدقيقة المسببة للأمراض",
+                "انعدام قوى التجاذب بين جزيئاته"
+            ],
+            correct: 1,
+            explanation: "يُعد الماء غير النقي موصلاً للتيار الكهربائي بسبب الأملاح الذائبة فيه، ولذلك يُحذَّر من لمس الكهرباء والأيدي مبللة[cite: 44]."
+        },
+        {
+            question: "كيف يحصل الغواصون ورواد الفضاء على غاز الأكسجين اللازم لعملية تنفسهم تحت الماء أو في الفضاء؟",
+            options: [
+                "عن طريق تفكيك جزيئات الماء مباشرة بأجهزة محمولة",
+                "بعد ضغط غاز الأكسجين في أسطوانات خاصة بذلك (تستفيد من خاصية انضغاط الغازات)",
+                "عن طريق تبريد الماء ليتحول إلى حالة صلبة غنية بالأكسجين",
+                "عن طريق استخراجه من الحالة الصلبة للمادة"
+            ],
+            correct: 1,
+            explanation: "يحصل الغواصون ورواد الفضاء على الأكسجين بعد ضغطه في أسطوانات خاصة، مستفيدين من قابلية الغازات للانضغاط[cite: 43]."
+        }
+    ];
+
+    const QUESTION_TIME_LIMIT = 30;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+    let timeLeft = QUESTION_TIME_LIMIT;
+    let timerInterval = null;
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = QUESTION_TIME_LIMIT;
+        updateTimerUI();
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerUI();
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const timerText = document.getElementById('timerText');
+        const timerBox = document.getElementById('timerBox');
+
+        timerText.innerText = timeLeft;
+
+        if (timeLeft <= 10) {
+            timerBox.classList.add('warning');
+        } else {
+            timerBox.classList.remove('warning');
+        }
+    }
+
+    function handleTimeout() {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const explanation = document.getElementById('explanationText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        buttons.forEach(btn => btn.disabled = true);
+        buttons[q.correct].classList.add('correct');
+
+        explanation.innerHTML = `⚠️ <strong>انتهى الوقت المحدد للسؤال!</strong><br>${q.explanation}`;
+        explanation.style.display = 'block';
+
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.innerText = 'السؤال التالي ➔';
+        } else {
+            nextBtn.innerText = 'عرض النتيجة 🏆';
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[currentQuestionIndex];
+        const quizBody = document.getElementById('quizBody');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        nextBtn.style.display = 'none';
+
+        const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+        quizBody.innerHTML = `
+            <div class="question-card active">
+                <div class="question-number">السؤال ${currentQuestionIndex + 1} من ${questions.length}</div>
+                <div class="question-text">${q.question}</div>
+                <div class="options-container">
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" onclick="selectOption(${i})">${opt}</button>
+                    `).join('')}
+                </div>
+                <div class="explanation" id="explanationText">${q.explanation}</div>
+            </div>
+        `;
+
+        startTimer();
+    }
+
+    function selectOption(index) {
+        if (answered) return;
+        answered = true;
+        clearInterval(timerInterval);
+
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const explanation = document.getElementById('explanationText');
+        const nextBtn = document.getElementById('nextBtn');
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (index === q.correct) {
+            buttons[index].classList.add('correct');
+            score++;
+        } else {
+            buttons[index].classList.add('incorrect');
+            buttons[q.correct].classList.add('correct');
+        }
+
+        explanation.style.display = 'block';
+
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.innerText = 'السؤال التالي ➔';
+        } else {
+            nextBtn.innerText = 'عرض النتيجة 🏆';
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        clearInterval(timerInterval);
+        document.getElementById('quizBody').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('statusBar').style.display = 'none';
+
+        const resultsCard = document.getElementById('resultsCard');
+        const scoreText = document.getElementById('scoreText');
+        const feedback = document.getElementById('resultFeedback');
+
+        scoreText.innerText = `${score}/${questions.length}`;
+        resultsCard.style.display = 'block';
+
+        const percentage = (score / questions.length) * 100;
+        if (percentage >= 90) {
+            feedback.innerText = "ممتاز جداً! أداء استثنائي وفهم عميق لحالات المادة والماء النقي وغير النقي 🌟";
+        } else if (percentage >= 70) {
+            feedback.innerText = "أحسنت! نتيجة رائعة وفهم قوي لخصائص حالات الماء والتوصيل الكهربائي 👍";
+        } else if (percentage >= 50) {
+            feedback.innerText = "مستوى جيد، مراجعة بسيطة لمسافات الجسيمات وقابلية الانضغاط تضمن لك العلامة الكاملة 📘";
+        } else {
+            feedback.innerText = "ينصح بإعادة قراءة الدرس والتركيز على قوى التجاذب وحالات المادة ثلاث 🔄";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById('quizBody').style.display = 'block';
+        document.getElementById('statusBar').style.display = 'flex';
+        document.getElementById('resultsCard').style.display = 'none';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
